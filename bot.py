@@ -8,6 +8,8 @@ import platform
 from dotenv import  load_dotenv
 
 from views.Ticket import Setup
+from views.Verify import Verify
+
 from colorama import Back, Fore, Style
 from discord.ext import commands
 
@@ -59,6 +61,7 @@ class Main(commands.Bot):
     async def on_ready(self):
         if not self.added:
             self.add_view(Setup())
+            self.add_view(Verify())
             self.added = True
         
         endTime = time.time()
@@ -66,18 +69,21 @@ class Main(commands.Bot):
         
         dpyVersion = discord.__version__
         pythonVersion = platform.python_version()
-        prefix = (Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S UTC", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
+        prefix = (Style.BRIGHT + Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
         
+        activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | TDD")
+        await self.change_presence(activity=activity)
+
         
-        print('─' * 50)
+        print('─' * 60)
         print(prefix + ' It took {:.2f}s to launch the program'.format(bootTime))
-        print('─' * 50)
+        print('─' * 60)
         print(prefix + f' Operating on Python {pythonVersion}')
         print(prefix + f' Running: discord v{dpyVersion}')
-        print('─' * 50)
+        print('─' * 60)
         print(prefix + f' Username: {bot.user}')
         print(prefix + f' ID: {bot.user.id}')
-        print('─' * 50)
+        print('─' * 60)
         
 bot = Main()
 

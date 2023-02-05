@@ -29,10 +29,8 @@ class TicketingSetup(commands.Cog):
     async def settings(self, ctx):
         embedSettings = discord.Embed(description="What do you want to do to this ticket?")
         await ctx.send(embed=embedSettings, view=Settings())
+        await ctx.message.delete()
     
-    @ticket.command()
-    async def button(self, ctx):
-        await ctx.send(f"Press the button! View persistence status: {Setup.is_persistent(Setup())}", view=Setup())
         
 async def setup(bot):
     await bot.add_cog(TicketingSetup(bot))
