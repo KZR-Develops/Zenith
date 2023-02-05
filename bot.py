@@ -43,13 +43,9 @@ logger.addHandler(handler)
 class Main(commands.Bot):
     def __init__(self) -> None:
         super().__init__(command_prefix=commands.when_mentioned_or(config['prefix']), intents=discord.Intents.all())
-        self.added = True
+        self.added = False
         
     async def setup_hook(self):
-        if not self.added:
-            self.add_view(Setup())
-            self.added = True
-            
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
                 try:
@@ -61,6 +57,10 @@ class Main(commands.Bot):
                         filename    , type(e).__name__, e))
                     
     async def on_ready(self):
+        if not self.added:
+            self.add_view(Setup())
+            self.added = True
+        
         endTime = time.time()
         bootTime = endTime - startTime
         

@@ -2,6 +2,8 @@ import asyncio
 import os
 import discord
 import datetime
+
+from discord.ext import commands
 from datetime import datetime
 
 class Setup(discord.ui.View):
@@ -9,9 +11,15 @@ class Setup(discord.ui.View):
         super().__init__(timeout=None)
         self.ticket_category_id = 1071728273677090837
         self.ticket_role = 1071715597567664258
+        self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
         
     @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.blurple, custom_id="create:blurple")
     async def gen(self, interaction: discord.Interaction, button: discord.ui.Button):
+        interaction.message.author = interaction.user
+        retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
+        if retry:
+            return await interaction.response.send_message(f"Slow down! You can create a ticket again in {round(retry, 1)} seconds.", ephemeral=True)
+        
         author = interaction.user
         guild = interaction.guild
         category = discord.utils.get(guild.categories, id=self.ticket_category_id)
