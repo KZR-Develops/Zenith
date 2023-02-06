@@ -15,15 +15,9 @@ class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.startTime = datetime.now()
-    
-    @commands.group()
-    async def info(self, ctx):
-        if ctx.invoked_subcommand is None:
-            embedError = discord.Embed(description=f"Try {config['prefix']}bot, {config['prefix']}server, or {config['prefix']}user")
-            await ctx.send(embed=embedError)
                
-    @info.command()
-    async def bot(self, ctx):
+    @commands.command()
+    async def info(self, ctx):
         with open('config.json', 'r') as f:
             config = json.load(f)
             
@@ -34,27 +28,22 @@ class Information(commands.Cog):
         lastBoot = self.startTime
         
         formattedLastBoot = self.startTime.strftime("%B %d, %Y @ %I:%M %p")
-        ram = psutil.virtual_memory().total / (1024.0 ** 3)
-        ramUsage = psutil.virtual_memory().percent
         dpyVersion = discord.__version__
-        cpuUsage= psutil.cpu_percent()
-        cpu = psutil.cpu_count()
         currentTime = datetime.now()
         uptime = currentTime - lastBoot
         createdTime = self.bot.user.created_at.strftime("%B %d, %Y @ %I:%M %p")
-        pyVersion = platform.python_version()
         
-        embedInfo = discord.Embed(color=0x00ff00, timestamp=currentTime)
+        embedInfo = discord.Embed(color=self.bot.user.color, timestamp=currentTime)
         embedInfo.set_author(name=f"{self.bot.user.name}#{self.bot.user.discriminator}", icon_url=self.bot.user.avatar)
-        embedInfo.add_field(name="General Informations", value=f"**Name:** {self.bot.user.name}\n**Bot ID:** {self.bot.user.id}\n**Created At:** {createdTime}\n**Bot Version** {prodInfo['Phase']} v{prodInfo['Version']}\n", inline=False)
-        embedInfo.add_field(name="Developer Informations", value=f"**Developer:** KZR\n**Developer ID:** {config['owner_id']}\n", inline=False)
-        embedInfo.add_field(name="Bot Usage and Statistics", value=f"**Last Boot:** {formattedLastBoot} \n**Ram Usage:** {ramUsage} % of {ram:.2f} GB\n**CPU Usage:** {cpuUsage}% of {cpu} Cores\n**Library Used:** Running on Discord.py {dpyVersion} and on Python {pyVersion}\n**Uptime:** {uptime.days} days, {uptime.seconds // 3600} hours, {(uptime.seconds // 60) % 60} minutes, and {uptime.seconds % 60} seconds\n", inline=False)
-        embedInfo.set_footer(text="This is an official bot for KZR's Hangout Place")
+        embedInfo.add_field(name="Version", value=prodInfo['Version'], inline=True)
+        embedInfo.add_field(name="Library", value=f"Discord.py {dpyVersion}", inline=True)
+        embedInfo.add_field(name="Uptime", value=f"{uptime.days} days, {uptime.seconds // 3600} hours, {(uptime.seconds // 60) % 60} minutes, and {uptime.seconds % 60} seconds", inline=False)
+        embedInfo.add_field(name="Last System Startup Date", value=formattedLastBoot, inline=False)
         
         await ctx.send(embed=embedInfo)
     
-    @info.command()
-    async def server(self, ctx):
+    @commands.command(aliases=["sinfo", "infoserver"])
+    async def serverinfo(self, ctx):
         guild = ctx.guild
         embedInfo = discord.Embed(description=guild.description, color=discord.Color.blue())
 
@@ -80,8 +69,8 @@ class Information(commands.Cog):
 
         await ctx.send(embed=embedInfo)
     
-    @info.command()
-    async def user(self, ctx, *, member: discord.Member=None):
+    @commands.command(aliases=["whois", "memberinfo", "infomember", "infouser"])
+    async def userinfo(self, ctx, *, member: discord.Member=None):
         if member is None:
             member = ctx.author
         elif member is not None:
@@ -98,6 +87,26 @@ class Information(commands.Cog):
         embedInfo.add_field(name="Member Since", value=member.joined_at.__format__("%B %d, %Y @ %I:%M %p"), inline=False)
             
         await ctx.send(embed=embedInfo)
+        
+    @commands.command()
+    async def ping(self, ctx):
+        embedLatency = discord.Embed(description=f"It took me approximately {round(self.bot.latency * 100)}ms to respond back.",color=self.bot.user.color)
+        embedLatency.set_author(name=f"Latency Checker")
+        
+        await ctx.send(embed=embedLatency)
+    
+    
+    @commands.command()
+    async def uptime(self, ctx):
+        
+        lastBoot = self.startTime
+        currentTime = datetime.now()
+        uptime = currentTime - lastBoot
+        
+        embedUptime = discord.Embed(description=f"{uptime.days} days, {uptime.seconds // 3600} hours, {(uptime.seconds // 60) % 60} minutes, and {uptime.seconds % 60} seconds", color=self.bot.user.color)
+        embedUptime.set_author(name="Uptime Checker")
+        
+        await ctx.send(embed=embedUptime)
         
 async def setup(bot):
     await bot.add_cog(Information(bot))

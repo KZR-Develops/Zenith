@@ -96,5 +96,3 @@ except discord.errors.RateLimited(retry_after=60):
 except discord.errors.HTTPException:
     os.system('kill')
     os.system('python restarter.py')
-
-
