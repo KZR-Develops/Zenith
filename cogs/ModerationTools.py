@@ -110,9 +110,9 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
-            embedError = discord.Embed(description="You cannot kick yourself!", color=0xff0000)
+            embedError = discord.Embed(description="Error! You cannot kick yourself!", color=0xff0000)
             
-            await ctx.send(embed=embedError)
+            await ctx.send(embed=embedError, delete_after=3)
         else:
             modlogsID = config['channels']['modlogs']
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -169,9 +169,9 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
-            embedError = discord.Embed(description="You cannot ban yourself!", color=0xff0000)
+            embedError = discord.Embed(description="Error! You cannot ban yourself!", color=0xff0000)
             
-            await ctx.send(embed=embedError)
+            await ctx.send(embed=embedError, delete_after=3)
         else:
             modlogsID = config['channels']['modlogs']
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -227,9 +227,9 @@ class ModerationTools(commands.Cog):
     @commands.command()
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
-            embedError = discord.Embed(description="You cannot warn yourself!", color=0xff0000)
+            embedError = discord.Embed(description="Error! You cannot warn yourself!", color=0xff0000)
             
-            await ctx.send(embed=embedError)
+            await ctx.send(embed=embedError, delete_after=3)
         else:
             modlogsID = config['channels']['modlogs']
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -307,9 +307,9 @@ class ModerationTools(commands.Cog):
     @commands.command()
     async def clearwarnings(self, ctx, member: discord.Member):
         if member == ctx.author:
-            embedError = discord.Embed(description="You cannot clear your warnings!", color=0xff0000)
+            embedError = discord.Embed(description="Error! You cannot clear your warnings!", color=0xff0000)
             
-            await ctx.send(embed=embedError)
+            await ctx.send(embed=embedError, delete_after=3)
         else:
             modlogsID = config['channels']['modlogs']
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
