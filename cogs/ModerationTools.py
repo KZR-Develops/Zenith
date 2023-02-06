@@ -11,101 +11,106 @@ with open('config.json', 'r') as f:
 class ModerationTools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.limit = config['Limits']['Purge']
     
-    @commands.command()
+    @commands.command(aliases=["clear"])
     @commands.has_permissions(manage_messages=True)
-    async def purge(self, ctx, amount: int):
+    async def purge(self, ctx, amount: int, member: discord.Member=None):
         
-        modlogs = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'Activity': 'Purge',
-            'Channel': ctx.channel.name,
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
-        
-        # Deletes x amount of messages and sends a message on the channel
-        await ctx.channel.purge(limit=amount + 1)
-        embedAction = discord.Embed(description=f"Deleted {amount} messages in this channel", color=0xf50000)
-        await ctx.send(embed=embedAction, delete_after=5)
-        
-        # Log the moderation activity
-        modlogs = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Purge", description=f"Deleted {amount} messages in {ctx.channel.mention}\n**Responsible Staff:** {ctx.author}", color=0x9acd32, timestamp=datetime.now())
-        embedLog.set_footer(text=f"Case ID: {case_number}")
-        await modlogs.send(embed=embedLog)
-        
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    async def purgemm(self, ctx, amount: int, member: discord.Member):
-        
-        modlogs = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'Activity': 'Purge Member Message',
-            'Channel': ctx.channel.name,
-            'Member': member.name,
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
-        
-        # Deletes x amount of messages and sends a message on the channel
-        await ctx.channel.purge(limit=amount + 1, check=lambda m: m.author == member)
-        embedAction = discord.Embed(description=f"Deleted {amount} messages of {member.display_name} in this channel", color=0xf50000)
-        await ctx.send(embed=embedAction, delete_after=5)
-        
-        # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Purge", description=f"Deleted {amount} messages of {member.display_name} in {ctx.channel.mention}\n**Responsible Staff:** {ctx.author}", color=0x9acd32, timestamp=datetime.now())
-        embedLog.set_footer(text=f"Case ID: {case_number}")
-        await channel.send(embed=embedLog)
+        if amount > int(self.limit):
+            embedError = discord.Embed(description="The amount exceeds the limit. Do not exceed the limit to keep the bot running smoothly.")
+            
+            await ctx.send(embed=embedError)
+        else:
+            if member is not None:
+                modlogsID = config['channels']['modlogs']
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # Load the JSON file containing the cases
+                with open('./extras/cases.json', 'r') as f:
+                    cases = json.load(f)
+                
+                # Increment the case number
+                case_number = cases['total_count'] + 1
+                
+                # Create a new case object
+                new_case = {
+                    'ID': case_number,
+                    'Responsible Staff': ctx.author.name,
+                    'Activity': 'Purge Member Message',
+                    'Channel': ctx.channel.name,
+                    'Member': member.name,
+                    'Time': current_time
+                }
+                
+                # Append the new case to the cases list
+                cases['cases'].append(new_case)
+                
+                # Update the case number in the JSON file
+                cases['total_count'] = case_number
+                
+                # Save the JSON file
+                with open('./extras/cases.json', 'w') as f:
+                    json.dump(cases, f, indent=4)
+                
+                # Deletes x amount of messages and sends a message on the channel
+                await ctx.channel.purge(limit=amount + 1, check=lambda m: m.author == member)
+                embedAction = discord.Embed(description=f"Deleted {amount} messages of {member.display_name} in this channel", color=0xf50000)
+                await ctx.send(embed=embedAction, delete_after=5)
+                
+                # Log the moderation activity
+                channel = self.bot.get_channel(modlogsID)
+                embedLog = discord.Embed(description=f"Deleted {amount} messages of {member.display_name} in {ctx.channel.mention}", color=0x9acd32, timestamp=datetime.now())
+                embedLog.set_author(name=ctx.author, icon_url=ctx.author.avatar)
+                embedLog.set_footer(text=f"Case ID: {case_number}")
+                await channel.send(embed=embedLog)
+            else:
+                modlogsID = config['channels']['modlogs']
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                
+                # Load the JSON file containing the cases
+                with open('./extras/cases.json', 'r') as f:
+                    cases = json.load(f)
+                
+                # Increment the case number
+                case_number = cases['total_count'] + 1
+                
+                # Create a new case object
+                new_case = {
+                    'ID': case_number,
+                    'Responsible Staff': ctx.author.name,
+                    'Activity': 'Purge',
+                    'Channel': ctx.channel.name,
+                    'Time': current_time
+                }
+                
+                # Append the new case to the cases list
+                cases['cases'].append(new_case)
+                
+                # Update the case number in the JSON file
+                cases['total_count'] = case_number
+                
+                # Save the JSON file
+                with open('./extras/cases.json', 'w') as f:
+                    json.dump(cases, f, indent=4)
+                
+                # Deletes x amount of messages and sends a message on the channel
+                await ctx.channel.purge(limit=amount + 1)
+                embedAction = discord.Embed(description=f"Deleted {amount} messages in this channel", color=0xf50000)
+                await ctx.send(embed=embedAction, delete_after=5)
+                
+                # Log the moderation activity
+                modlogs = self.bot.get_channel(int(modlogsID))
+                embedLog = discord.Embed(description=f"Deleted {amount} messages in {ctx.channel.mention}", color=0x9acd32, timestamp=datetime.now())
+                embedLog.set_author(name=ctx.author, icon_url=ctx.author.avatar)
+                embedLog.set_footer(text=f"Case ID: {case_number}")
+                await modlogs.send(embed=embedLog)       
         
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Load the JSON file containing the cases
@@ -142,23 +147,25 @@ class ModerationTools(commands.Cog):
         
         # Send a kick notice to the member
         embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name="KZR's Hangout Place", url="https://discord.gg/VcrAgprdFP")
+        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
         embedNotice.add_field(name="Reason For The Action:", value=reason)
         embedNotice.set_footer(text=f"Case ID: {case_number}")
         
         await member.send(embed=embedNotice)
         
         # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Kick", description=f"A member named {member} has been kicked for the reason stated below.\n\n**Reason: **{reason}\n**Responsible Staff:** {ctx.author}", color=0xf50000, timestamp=datetime.now())
-        embedLog.set_footer(text=f"Case ID: {case_number}")
-        await channel.send(embed=embedLog)
+        modlogs = self.bot.get_channel(int(modlogsID))
+        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+        embedLog.set_author(name=f"{member.name}#{member.discriminator} has been kicked", icon_url=member.avatar)
+        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+        embedLog.add_field(name="Reason", value=reason)
+        await modlogs.send(embed=embedLog)
         
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Load the JSON file containing the cases
@@ -195,22 +202,24 @@ class ModerationTools(commands.Cog):
         
         # Send a ban notice to the member
         embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name="KZR's Hangout Place", url="https://discord.gg/VcrAgprdFP")
+        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
         embedNotice.add_field(name="Reason For The Action:", value=reason)
         embedNotice.set_footer(text=f"Case ID: {case_number}")
         
         await member.send(embed=embedNotice)
         
         # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Ban", description=f"A member named {member} has been banned for the reason stated below.\n\n**Reason: **{reason}\n**Responsible Staff:** {ctx.author}", color=0xf50000, timestamp=datetime.now())
-        embedLog.set_footer(text=f"Case ID: {case_number}")
-        await channel.send(embed=embedLog)
+        modlogs = self.bot.get_channel(int(modlogsID))
+        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+        embedLog.set_author(name=f"{member.name}#{member.discriminator} has been banned", icon_url=member.avatar)
+        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+        embedLog.add_field(name="Reason", value=reason)
+        await modlogs.send(embed=embedLog)
         
     @commands.command()
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Load the JSON file containing the cases
@@ -266,23 +275,27 @@ class ModerationTools(commands.Cog):
         
         # Send a warning to the member
         embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been warned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name="KZR's Hangout Place", url="https://discord.gg/VcrAgprdFP")
+        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
         embedNotice.add_field(name="Reason For The Action:", value=reason)
         embedNotice.set_footer(text=f"Total # of Warnings {warning_number} • Case ID: {case_number}")
         
         await member.send(embed=embedNotice)
         
         # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Warning", description=f"A member named {member} has been warned for the reason stated below.\n\n**Reason: **{reason}\n**Responsible Staff:** {ctx.author}\n**Total Warnings:** {warning_number}", color=0xf50000, timestamp=datetime.now())
+        modlogs = self.bot.get_channel(int(modlogsID))
+        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+        embedLog.set_author(name=f"Warning for {member.name}#{member.discriminator}", icon_url=member.avatar)
+        embedLog.add_field(name=f"Total Warnings", value=warning_number, inline=True)
+        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+        embedLog.add_field(name="Reason", value=reason)
         embedLog.set_footer(text=f"Member ID: {member.id} • Case ID: {case_number}")
         
-        await channel.send(embed=embedLog)
+        await modlogs.send(embed=embedLog)
     
     @commands.command()
     async def clearwarnings(self, ctx, member: discord.Member):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Load the JSON file containing the cases
@@ -329,9 +342,10 @@ class ModerationTools(commands.Cog):
         await ctx.send(embed=embedAction, delete_after=5)
 
         # Log the moderation activity
-        modlogs = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Clear Warning", description=f"{member.name} warnings have been cleared.", color=0x00ff00, timestamp=datetime.now())
-        embedLog.set_footer(text=f"Member ID: {member.id} • Case ID: {case_number}")
+        modlogs = self.bot.get_channel(int(modlogsID))
+        embedLog = discord.Embed(color=0x9acd32, timestamp=datetime.now())
+        embedLog.set_author(name=f"Cleared all warnings for {member.name}#{member.discriminator}", icon_url=member.avatar)
+        embedLog.set_footer(text=f"Case ID: {case_number}")
         
         await modlogs.send(embed=embedLog)
             
@@ -339,7 +353,7 @@ class ModerationTools(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def lockdown(self, ctx):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         announcement = config['channels']['announcement']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
@@ -388,17 +402,18 @@ class ModerationTools(commands.Cog):
         await channel.send(embed=embedAction)
         
         # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
-        embedLog = discord.Embed(title="Moderation Activity: Lockdown Mode", color=0xf50000, timestamp=datetime.now())
+        modlogs = self.bot.get_channel(int(modlogsID))
+        embedLog = discord.Embed(color=0x000000, timestamp=datetime.now())
+        embedLog.set_author(name="Lockdown mode has been enabled.", icon_url=ctx.guild.icon)
         embedLog.set_footer(text=f"Case ID: {case_number}")
         
-        await channel.send(embed=embedLog)
+        await modlogs.send(embed=embedLog)
         
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def unlock(self, ctx):
         
-        modlogs = config['channels']['modlogs']
+        modlogsID = config['channels']['modlogs']
         announcement = config['channels']['announcement']
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
@@ -447,11 +462,11 @@ class ModerationTools(commands.Cog):
         await channel.send(embed=embedAction)
         
         # Log the moderation activity
-        channel = self.bot.get_channel(modlogs)
+        modlogs = self.bot.get_channel(int(modlogsID))
         embedLog = discord.Embed(title="Moderation Activity: Lockdown Lifted", color=0x00ff00, timestamp=datetime.now())
         embedLog.set_footer(text=f"Case ID: {case_number}")
         
-        await channel.send(embed=embedLog)
+        await modlogs.send(embed=embedLog)
 
 async def setup(bot):
     await bot.add_cog(ModerationTools(bot))

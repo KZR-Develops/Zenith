@@ -16,7 +16,7 @@ class Information(commands.Cog):
         self.bot = bot
         self.startTime = datetime.now()
                
-    @commands.command()
+    @commands.command(aliases=["botinfo", "infobot"])
     async def info(self, ctx):
         with open('config.json', 'r') as f:
             config = json.load(f)
@@ -75,6 +75,14 @@ class Information(commands.Cog):
             member = ctx.author
         elif member is not None:
             member = member
+            
+        roles = sorted(member.roles, key=lambda x: x.position, reverse=True)
+        for role in roles:
+            if role.hoist:
+                highest_role = role
+                break
+            else:
+                highest_role = member.top_role
         
         embedInfo = discord.Embed(color=member.color)
         
@@ -82,7 +90,7 @@ class Information(commands.Cog):
         embedInfo.set_author(name=f"{member.name}#{member.discriminator}", icon_url=member.avatar)
         embedInfo.add_field(name="Member ID", value=member.id, inline=True)
         embedInfo.add_field(name="Nickname", value=member.nick, inline=True)
-        embedInfo.add_field(name="Top Role", value=member.top_role, inline=False)
+        embedInfo.add_field(name="Top Role", value=highest_role, inline=False)
         embedInfo.add_field(name="Account Creation Date", value=member.created_at.__format__("%B %d, %Y @ %I:%M %p"), inline=False)
         embedInfo.add_field(name="Member Since", value=member.joined_at.__format__("%B %d, %Y @ %I:%M %p"), inline=False)
             

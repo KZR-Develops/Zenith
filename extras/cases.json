@@ -1,12 +1,26 @@
 {
-    "total_count": 1,
+    "total_count": 3,
     "cases": [
         {
             "ID": 1,
             "Responsible Staff": "KZR Designs",
             "Activity": "Purge",
             "Channel": "\ufe5d\ud83e\udd16\ufe5ecommands",
-            "Time": "2023-02-06 11:51:24"
+            "Time": "2023-02-06 16:46:40"
+        },
+        {
+            "ID": 2,
+            "Responsible Staff": "KZR Designs",
+            "Activity": "Purge",
+            "Channel": "ticket-1",
+            "Time": "2023-02-06 16:49:35"
+        },
+        {
+            "ID": 3,
+            "Responsible Staff": "KZR Designs",
+            "Activity": "Purge",
+            "Channel": "\ufe5d\ud83d\udcad\ufe5egeneral",
+            "Time": "2023-02-06 17:03:58"
         }
     ]
 }
