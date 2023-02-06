@@ -109,245 +109,261 @@ class ModerationTools(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
-        
-        modlogsID = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'User': member.name,
-            'Activity': 'Kicked',
-            'Reason': reason,
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
+        if member == ctx.author:
+            embedError = discord.Embed(description="You cannot kick yourself!", color=0xff0000)
             
-        # Sends a message on the channel and kicks the member
-        embedAction = discord.Embed(description=f"{member.name} has been removed from the server for violating our community guidelines.", color=0xf50000)
-        await ctx.send(embed=embedAction, delete_after=5)
-        # await member.kick(reason=reason)
-        
-        # Send a kick notice to the member
-        embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-        embedNotice.add_field(name="Reason For The Action:", value=reason)
-        embedNotice.set_footer(text=f"Case ID: {case_number}")
-        
-        await member.send(embed=embedNotice)
-        
-        # Log the moderation activity
-        modlogs = self.bot.get_channel(int(modlogsID))
-        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-        embedLog.set_author(name=f"{member.name}#{member.discriminator} has been kicked", icon_url=member.avatar)
-        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-        embedLog.add_field(name="Reason", value=reason)
-        await modlogs.send(embed=embedLog)
+            await ctx.send(embed=embedError)
+        else:
+            modlogsID = config['channels']['modlogs']
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Load the JSON file containing the cases
+            with open('./extras/cases.json', 'r') as f:
+                cases = json.load(f)
+            
+            # Increment the case number
+            case_number = cases['total_count'] + 1
+            
+            # Create a new case object
+            new_case = {
+                'ID': case_number,
+                'Responsible Staff': ctx.author.name,
+                'User': member.name,
+                'Activity': 'Kicked',
+                'Reason': reason,
+                'Time': current_time
+            }
+            
+            # Append the new case to the cases list
+            cases['cases'].append(new_case)
+            
+            # Update the case number in the JSON file
+            cases['total_count'] = case_number
+            
+            # Save the JSON file
+            with open('./extras/cases.json', 'w') as f:
+                json.dump(cases, f, indent=4)
+                
+            # Sends a message on the channel and kicks the member
+            embedAction = discord.Embed(description=f"{member.name} has been removed from the server for violating our community guidelines.", color=0xf50000)
+            await ctx.send(embed=embedAction, delete_after=5)
+            # await member.kick(reason=reason)
+            
+            # Send a kick notice to the member
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been removed from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
+            embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+            embedNotice.add_field(name="Reason For The Action:", value=reason)
+            embedNotice.set_footer(text=f"Case ID: {case_number}")
+            
+            await member.send(embed=embedNotice)
+            
+            # Log the moderation activity
+            modlogs = self.bot.get_channel(int(modlogsID))
+            embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"{member.name}#{member.discriminator} has been kicked", icon_url=member.avatar)
+            embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+            embedLog.add_field(name="Reason", value=reason, inline=False)
+            await modlogs.send(embed=embedLog)
         
     @commands.command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
-        
-        modlogsID = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'User': member.name,
-            'Activity': 'Banned',
-            'Reason': reason,
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
+        if member == ctx.author:
+            embedError = discord.Embed(description="You cannot ban yourself!", color=0xff0000)
             
-        # Sends a message on the channel and bans the member
-        embedAction = discord.Embed(description=f"{member.name} has been banned from the server for violating our community guidelines.", color=0xf50000)
-        await ctx.send(embed=embedAction)
-        # await member.ban(reason=reason)
-        
-        # Send a ban notice to the member
-        embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-        embedNotice.add_field(name="Reason For The Action:", value=reason)
-        embedNotice.set_footer(text=f"Case ID: {case_number}")
-        
-        await member.send(embed=embedNotice)
-        
-        # Log the moderation activity
-        modlogs = self.bot.get_channel(int(modlogsID))
-        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-        embedLog.set_author(name=f"{member.name}#{member.discriminator} has been banned", icon_url=member.avatar)
-        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-        embedLog.add_field(name="Reason", value=reason)
-        await modlogs.send(embed=embedLog)
+            await ctx.send(embed=embedError)
+        else:
+            modlogsID = config['channels']['modlogs']
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Load the JSON file containing the cases
+            with open('./extras/cases.json', 'r') as f:
+                cases = json.load(f)
+            
+            # Increment the case number
+            case_number = cases['total_count'] + 1
+            
+            # Create a new case object
+            new_case = {
+                'ID': case_number,
+                'Responsible Staff': ctx.author.name,
+                'User': member.name,
+                'Activity': 'Banned',
+                'Reason': reason,
+                'Time': current_time
+            }
+            
+            # Append the new case to the cases list
+            cases['cases'].append(new_case)
+            
+            # Update the case number in the JSON file
+            cases['total_count'] = case_number
+            
+            # Save the JSON file
+            with open('./extras/cases.json', 'w') as f:
+                json.dump(cases, f, indent=4)
+                
+            # Sends a message on the channel and bans the member
+            embedAction = discord.Embed(description=f"{member.name} has been banned from the server for violating our community guidelines.", color=0xf50000)
+            await ctx.send(embed=embedAction)
+            # await member.ban(reason=reason)
+            
+            # Send a ban notice to the member
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been banned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.\n\nIf you were removed from the server and believe it was unjust, you can [submit an appeal](https://forms.gle/M6yTr78DkMycVpSY7) for reinstatement. Provide a clear explanation and any supporting evidence. We take moderation actions seriously and will not entertain frivolous appeals. Our team will review and make a decision as soon as possible.", color=0xf50000, timestamp=datetime.now())
+            embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+            embedNotice.add_field(name="Reason For The Action:", value=reason)
+            embedNotice.set_footer(text=f"Case ID: {case_number}")
+            
+            await member.send(embed=embedNotice)
+            
+            # Log the moderation activity
+            modlogs = self.bot.get_channel(int(modlogsID))
+            embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"{member.name}#{member.discriminator} has been banned", icon_url=member.avatar)
+            embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+            embedLog.add_field(name="Reason", value=reason, inline=False)
+            await modlogs.send(embed=embedLog)
         
     @commands.command()
     async def warn(self, ctx, member: discord.Member, *, reason=None):
-        
-        modlogsID = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'User': member.name,
-            'Status': 'Warning',
-            'Reason': reason,
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
-        
-        # Load the JSON file containing the warnings
-        with open("./extras/warnings.json", "r") as f:
-            warnings = json.load(f)
-        
-        # Checks if the member has existing warning
-        if str(member.id) not in warnings:
-            warnings[str(member.id)] = {"WarningCount": "0",}
-
-        warnings[str(member.id)]["WarningCount"] = str(int(warnings[str(member.id)]["WarningCount"]) + 1)
-        warning_number = warnings[str(member.id)]["WarningCount"]
-        warnings[str(member.id)][warning_number] = {
-            "Reason": reason,
-            "Staff Responsible": ctx.author.name,
-            "Time": str(datetime.now())
-        }
-        
-        # Save the JSON file
-        with open("./extras/warnings.json", "w") as f:
-            json.dump(warnings, f, indent=4)
+        if member == ctx.author:
+            embedError = discord.Embed(description="You cannot warn yourself!", color=0xff0000)
             
-        # Sends a message on the channel
-        embedAction = discord.Embed(description=f"{member.mention} have been warned for the reason stated below\n\n**Reason**: {reason}\n\nYou now have **{warning_number} warnings**", color=0xf50000)
-        await ctx.send(embed=embedAction, delete_after=5)
-        
-        # Send a warning to the member
-        embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been warned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.", color=0xf50000, timestamp=datetime.now())
-        embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
-        embedNotice.add_field(name="Reason For The Action:", value=reason)
-        embedNotice.set_footer(text=f"Total # of Warnings {warning_number} • Case ID: {case_number}")
-        
-        await member.send(embed=embedNotice)
-        
-        # Log the moderation activity
-        modlogs = self.bot.get_channel(int(modlogsID))
-        embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
-        embedLog.set_author(name=f"Warning for {member.name}#{member.discriminator}", icon_url=member.avatar)
-        embedLog.add_field(name=f"Total Warnings", value=warning_number, inline=True)
-        embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
-        embedLog.add_field(name="Reason", value=reason)
-        embedLog.set_footer(text=f"Member ID: {member.id} • Case ID: {case_number}")
-        
-        await modlogs.send(embed=embedLog)
+            await ctx.send(embed=embedError)
+        else:
+            modlogsID = config['channels']['modlogs']
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Load the JSON file containing the cases
+            with open('./extras/cases.json', 'r') as f:
+                cases = json.load(f)
+            
+            # Increment the case number
+            case_number = cases['total_count'] + 1
+            
+            # Create a new case object
+            new_case = {
+                'ID': case_number,
+                'Responsible Staff': ctx.author.name,
+                'User': member.name,
+                'Status': 'Warning',
+                'Reason': reason,
+                'Time': current_time
+            }
+            
+            # Append the new case to the cases list
+            cases['cases'].append(new_case)
+            
+            # Update the case number in the JSON file
+            cases['total_count'] = case_number
+            
+            # Save the JSON file
+            with open('./extras/cases.json', 'w') as f:
+                json.dump(cases, f, indent=4)
+            
+            # Load the JSON file containing the warnings
+            with open("./extras/warnings.json", "r") as f:
+                warnings = json.load(f)
+            
+            # Checks if the member has existing warning
+            if str(member.id) not in warnings:
+                warnings[str(member.id)] = {"WarningCount": "0",}
+
+            warnings[str(member.id)]["WarningCount"] = str(int(warnings[str(member.id)]["WarningCount"]) + 1)
+            warning_number = warnings[str(member.id)]["WarningCount"]
+            warnings[str(member.id)][warning_number] = {
+                "Reason": reason,
+                "Staff Responsible": ctx.author.name,
+                "Time": str(datetime.now())
+            }
+            
+            # Save the JSON file
+            with open("./extras/warnings.json", "w") as f:
+                json.dump(warnings, f, indent=4)
+                
+            # Sends a message on the channel
+            embedAction = discord.Embed(description=f"{member.mention} have been warned for the reason stated below\n\n**Reason**: {reason}", color=0xf50000)
+            await ctx.send(embed=embedAction, delete_after=5)
+            
+            # Send a warning to the member
+            embedNotice = discord.Embed(description=f"Hey there {member.name}!\n\nThis message is sent to make you aware of the action we've made.\nYou have been warned from the server for violating our community guidelines.\n\nWe take the safety and well-being of our community seriously. Please respect our rules and guidelines to ensure a positive and enjoyable experience for all members.", color=0xf50000, timestamp=datetime.now())
+            embedNotice.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon)
+            embedNotice.add_field(name="Reason For The Action:", value=reason)
+            embedNotice.set_footer(text=f"Total # of Warnings {warning_number} • Case ID: {case_number}")
+            
+            await member.send(embed=embedNotice)
+            
+            # Log the moderation activity
+            modlogs = self.bot.get_channel(int(modlogsID))
+            embedLog = discord.Embed(color=0xf50000, timestamp=datetime.now())
+            embedLog.set_author(name=f"Warning for {member.name}#{member.discriminator}", icon_url=member.avatar)
+            embedLog.add_field(name=f"Total Warnings", value=warning_number, inline=True)
+            embedLog.add_field(name="Responsible Staff", value=ctx.author, inline=True)
+            embedLog.add_field(name="Reason", value=reason, inline=False)
+            embedLog.set_footer(text=f"Member ID: {member.id} • Case ID: {case_number}")
+            
+            await modlogs.send(embed=embedLog)
     
     @commands.command()
     async def clearwarnings(self, ctx, member: discord.Member):
-        
-        modlogsID = config['channels']['modlogs']
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Load the JSON file containing the cases
-        with open('./extras/cases.json', 'r') as f:
-            cases = json.load(f)
-        
-        # Increment the case number
-        case_number = cases['total_count'] + 1
-        
-        # Create a new case object
-        new_case = {
-            'ID': case_number,
-            'Responsible Staff': ctx.author.name,
-            'User': member.name,
-            'Activity': 'Clear Warnings',
-            'Time': current_time
-        }
-        
-        # Append the new case to the cases list
-        cases['cases'].append(new_case)
-        
-        # Update the case number in the JSON file
-        cases['total_count'] = case_number
-        
-        # Save the JSON file
-        with open('./extras/cases.json', 'w') as f:
-            json.dump(cases, f, indent=4)
-        
-        # Load the JSON file containing the warnings
-        with open('./extras/warnings.json', 'r') as f:
-            warnings = json.load(f)
+        if member == ctx.author:
+            embedError = discord.Embed(description="You cannot clear your warnings!", color=0xff0000)
+            
+            await ctx.send(embed=embedError)
+        else:
+            modlogsID = config['channels']['modlogs']
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Load the JSON file containing the cases
+            with open('./extras/cases.json', 'r') as f:
+                cases = json.load(f)
+            
+            # Increment the case number
+            case_number = cases['total_count'] + 1
+            
+            # Create a new case object
+            new_case = {
+                'ID': case_number,
+                'Responsible Staff': ctx.author.name,
+                'User': member.name,
+                'Activity': 'Clear Warnings',
+                'Time': current_time
+            }
+            
+            # Append the new case to the cases list
+            cases['cases'].append(new_case)
+            
+            # Update the case number in the JSON file
+            cases['total_count'] = case_number
+            
+            # Save the JSON file
+            with open('./extras/cases.json', 'w') as f:
+                json.dump(cases, f, indent=4)
+            
+            # Load the JSON file containing the warnings
+            with open('./extras/warnings.json', 'r') as f:
+                warnings = json.load(f)
 
 
-        # Sends a message on the channel and clear all the warnings of the member
-        if str(member.id) not in warnings:
-            await ctx.send("This user has no warnings.")
-            return
+            # Sends a message on the channel and clear all the warnings of the member
+            if str(member.id) not in warnings:
+                await ctx.send("This user has no warnings.")
+                return
 
-        del warnings[str(member.id)]
-        with open('./extras/warnings.json', 'w') as f:
-            json.dump(warnings, f)
+            del warnings[str(member.id)]
+            with open('./extras/warnings.json', 'w') as f:
+                json.dump(warnings, f)
 
-        embedAction = discord.Embed(description=f"All warnings of {member.mention} have been cleared.", timestamp=datetime.now())
-        await ctx.send(embed=embedAction, delete_after=5)
+            embedAction = discord.Embed(description=f"All warnings of {member.mention} have been cleared.", timestamp=datetime.now())
+            await ctx.send(embed=embedAction, delete_after=5)
 
-        # Log the moderation activity
-        modlogs = self.bot.get_channel(int(modlogsID))
-        embedLog = discord.Embed(color=0x9acd32, timestamp=datetime.now())
-        embedLog.set_author(name=f"Cleared all warnings for {member.name}#{member.discriminator}", icon_url=member.avatar)
-        embedLog.set_footer(text=f"Case ID: {case_number}")
-        
-        await modlogs.send(embed=embedLog)
+            # Log the moderation activity
+            modlogs = self.bot.get_channel(int(modlogsID))
+            embedLog = discord.Embed(color=0x9acd32, timestamp=datetime.now())
+            embedLog.set_author(name=f"Cleared all warnings for {member.name}#{member.discriminator}", icon_url=member.avatar)
+            embedLog.set_footer(text=f"Case ID: {case_number}")
+            
+            await modlogs.send(embed=embedLog)
             
     @commands.command()
     @commands.has_permissions(administrator=True)
