@@ -1,16 +1,13 @@
 import datetime
+import json
+import discord
 
 from datetime import datetime
-import json
-import platform
-import time
-import discord
-import psutil
-
 from discord.ext import commands
 
 with open('config.json') as f:
     config = json.load(f)
+    
 class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -115,6 +112,7 @@ class Information(commands.Cog):
         embedUptime.set_author(name="Uptime Checker")
         
         await ctx.send(embed=embedUptime)
+        
         
 async def setup(bot):
     await bot.add_cog(Information(bot))

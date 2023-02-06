@@ -39,6 +39,7 @@ class Setup(discord.ui.View):
         await channel.send(embed=embedAssistance)
         await interaction.response.send_message(embed=embedCreated, ephemeral=True)
 
+
 class Settings(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -46,7 +47,7 @@ class Settings(discord.ui.View):
     @discord.ui.button(label="Close Ticket", style=discord.ButtonStyle.red, custom_id="close:red", emoji="🗑️")
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         embedConfirmation = discord.Embed(description="Are you sure you want to close this ticket?", color=0xff0000)
-        await interaction.response.send_message(embed=embedConfirmation, ephemeral=True, view=CloseConfirm())
+        await interaction.response.send_message(embed=embedConfirmation, ephemeral=True, view=CloseConfirmation())
     
     @discord.ui.button(label="Create Transcript", style=discord.ButtonStyle.blurple, custom_id='transcript:blurple', emoji="🖨️")
     async def transcript(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -78,8 +79,11 @@ class Settings(discord.ui.View):
         asyncio.ensure_future(delete_transcript())
 
 
-
-class CloseConfirm(discord.ui.View):
+class CloseConfirmation(discord.ui.View):
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.gray, custom_id="cancel:gray")
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.message.delete()
+        
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.danger, custom_id="confirmclose:danger")
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         embedAction = discord.Embed(description="Ticket is being deleted.", color=0xff0000)

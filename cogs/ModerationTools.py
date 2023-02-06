@@ -106,6 +106,7 @@ class ModerationTools(commands.Cog):
                 embedLog.set_footer(text=f"Case ID: {case_number}")
                 await modlogs.send(embed=embedLog)       
         
+    ### Punishment System ###
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
@@ -224,6 +225,7 @@ class ModerationTools(commands.Cog):
             embedLog.add_field(name="Reason", value=reason, inline=False)
             await modlogs.send(embed=embedLog)
         
+    ### Warning System ###
     @commands.command()
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         if member == ctx.author:
@@ -365,6 +367,23 @@ class ModerationTools(commands.Cog):
             
             await modlogs.send(embed=embedLog)
             
+    @commands.command(aliases=["warnings", "checkwarns", "warns"])
+    async def checkwarnings(self, ctx, member: discord.Member):
+        with open('./extras/warnings.json', 'r') as f:
+            warnings = json.load(f)
+            
+        if str(member.id) not in warnings:
+            embedCount = discord.Embed(description=f"{member.name}#{member.discriminator} has a total of no warnings.", color=member.color)
+            await ctx.send(embed=embedCount)
+            return
+            
+        count = warnings[str(member.id)]["WarningCount"]
+        
+        embedCount = discord.Embed(description=f"{member.name}#{member.discriminator} has a total of {count} of warnings.", color=member.color)
+        
+        await ctx.send(embed=embedCount)
+        
+    ### Lockdown System ###
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def lockdown(self, ctx):
