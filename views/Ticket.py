@@ -14,7 +14,7 @@ class Setup(discord.ui.View):
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
         
     @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.blurple, custom_id="create:blurple")
-    async def gen(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction.message.author = interaction.user
         retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
         if retry:
@@ -33,8 +33,8 @@ class Setup(discord.ui.View):
         }
         channel = await guild.create_text_channel(channel_name, category=category, overwrites=overwrites)
         
-        embedCreated = discord.Embed(title="Ticket Creation", description=f"{author.mention}, Your ticket has been created in {channel.mention}.")
-        embedAssistance = discord.Embed(title=f"Hey there {author.name}!", description=f"A staff will assist you shortly, please wait.\n<@&{self.ticket_role}>", timestamp=datetime.now())
+        embedCreated = discord.Embed(title="Ticket Creation", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now())
+        embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there{author.mention}!\nA staff will be here shortly, please wait.\n<@&{self.ticket_role}>", timestamp=datetime.now())
         embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
         await channel.send(embed=embedAssistance)
         await interaction.response.send_message(embed=embedCreated, ephemeral=True)
