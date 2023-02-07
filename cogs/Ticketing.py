@@ -1,7 +1,8 @@
 import discord
 
 from discord.ext import commands
-from views.Ticket import Setup, Settings
+from datetime import datetime
+from views.Ticket import Setup, Settings, TicketTypeSelector, ReportTypeSelector, AppealTypeSelector
 
 class TicketingSetup(commands.Cog):
     def __init__(self, bot):
@@ -24,7 +25,7 @@ class TicketingSetup(commands.Cog):
         embedSetup = discord.Embed(title="Do you need help?", description="To get help from our staffs, click the button below.\n\nIt will automatically generate a channel to discuss your problem with our support team.")
         await ctx.send(embed=embedSetup, view=Setup())
         await ctx.message.delete()
-        
+            
     @ticket.command()
     async def settings(self, ctx):
         embedSettings = discord.Embed(description="What do you want to do to this ticket?")

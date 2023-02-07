@@ -1,13 +1,4 @@
 {
     "total_count": 1,
-    "cases": [
-        {
-            "ID": 1,
-            "Responsible Staff": "kaiii",
-            "User": "Dyno",
-            "Status": "Warning",
-            "Reason": "testing",
-            "Time": "2023-02-07 01:14:42"
-        }
-    ]
+    "cases": []
 }
