@@ -72,7 +72,7 @@ class Main(commands.Bot):
         pythonVersion = platform.python_version()
         prefix = (Style.BRIGHT + Back.BLACK + Fore.GREEN + '[' + time.strftime("%H:%M:%S", time.gmtime()) + ']' + Back.RESET + Fore.WHITE + Style.BRIGHT)
         
-        activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help")
+        activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | TDD")
         await self.change_presence(activity=activity)
 
         

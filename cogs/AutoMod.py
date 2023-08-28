@@ -12,7 +12,7 @@ class AutoMod(commands.Cog):
             return
         
         # Invite blocker
-        embedNotice = discord.Embed(description=f"{message.author.mention}, Sending discord invite links is not allowed in this server.", color=0xb50000)
+        embedNotice = discord.Embed(description=f"{message.author.mention}, Sending discord invite links is not allowed in this server.", color=0xff0000)
 
         if "discord.gg" in message.content:
             await message.delete()

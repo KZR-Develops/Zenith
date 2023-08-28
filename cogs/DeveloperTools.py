@@ -21,14 +21,14 @@ class DeveloperTools(commands.Cog):
             await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
             return
         
-        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0xb50000)
+        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0x00ff00)
         await ctx.send(embed=embedAction)
 
     @cog.command()
     async def unload(self, ctx, extension_name : str):
         """Unloads an extension."""
         await self.bot.unload_extension(extension_name)
-        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0xb50000)
+        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0x00ff00)
         await ctx.send(embed=embedAction)
         
     @cog.command()
@@ -44,8 +44,9 @@ class DeveloperTools(commands.Cog):
             await ctx.send("```py\n{}: {}\n```".format(type(e).__name__, str(e)))
             return
         
-        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0xb50000)
+        embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0x00ff00)
         await ctx.send(embed=embedAction)
+        
 
 async def setup(bot):
     await bot.add_cog(DeveloperTools(bot))

@@ -27,11 +27,11 @@ async def generate(self, interaction: discord.Interaction, type):
         channel = await guild.create_text_channel(channel_name, category=category, overwrites=overwrites)
         
         if type == "question":
-            embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there{author.mention}!\nA staff will be here shortly, please wait.\n<@&{self.ticket_role}>", timestamp=datetime.now(), color=0xb50000)
+            embedAssistance = discord.Embed(title=f"Please standby!", description=f"Hey there{author.mention}!\nA staff will be here shortly, please wait.\n<@&{self.ticket_role}>", timestamp=datetime.now())
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             await channel.send(embed=embedAssistance)
             
-            embedDashboard = discord.Embed(description=f"Type of Ticket: Question\nTicket Channel: {channel.mention}", color=0xb50000, timestamp=datetime.now())
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Question\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
@@ -41,7 +41,7 @@ async def generate(self, interaction: discord.Interaction, type):
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             await channel.send(embed=embedAssistance, view=ReportTypeSelector())
             
-            embedDashboard = discord.Embed(description=f"Type of Ticket: Report\nTicket Channel: {channel.mention}", timestamp=datetime.now(), color=0xb50000)
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Report\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
@@ -51,13 +51,13 @@ async def generate(self, interaction: discord.Interaction, type):
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             await channel.send(embed=embedAssistance)   
             
-            embedDashboard = discord.Embed(description=f"Type of Ticket: Appeal\nTicket Channel: {channel.mention}", timestamp=datetime.now(), color=0xb50000)
+            embedDashboard = discord.Embed(description=f"Type of Ticket: Appeal\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
             embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
             await dashboard.send(embed=embedDashboard) 
         
-        embedCreated = discord.Embed(title="Ticket Creation", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now(), color=0xb50000)    
+        embedCreated = discord.Embed(title="Ticket Creation", description=f"{author.mention}, Your ticket has been created in {channel.mention}.", timestamp=datetime.now())    
         await interaction.response.send_message(embed=embedCreated, ephemeral=True)
 class Setup(discord.ui.View):
     def __init__(self):
@@ -67,7 +67,7 @@ class Setup(discord.ui.View):
         self.ticket_dashboard_id = config['channels']['ticket_dashboard']
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
     
-    @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.red, custom_id="create:red")
+    @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.blurple, custom_id="create:blurple")
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction.message.author = interaction.user
         retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
@@ -149,7 +149,7 @@ class AppealTypeSelector(discord.ui.View):
         if select.values[0] == "kicked":
             embedFollowUp = discord.Embed(description="Tell us more, if possible also state your Case ID (This is located at the footer of every notice sent directly to you.)")
             await interaction.response.send_message(embed=embedFollowUp)
-        if select.values[0] == "banned":
+        if select.values[0] == "kicked":
             embedFollowUp = discord.Embed(description="Tell us more, if possible also state your Case ID (This is located at the footer of every notice sent directly to you.)")
             await interaction.response.send_message(embed=embedFollowUp)
                 

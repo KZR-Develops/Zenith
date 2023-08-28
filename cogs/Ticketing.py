@@ -22,7 +22,7 @@ class TicketingSetup(commands.Cog):
 
     @ticket.command()
     async def setup(self, ctx):
-        embedSetup = discord.Embed(title="Do you need help?", description="To get help from our staffs, click the button below.\n\nIt will automatically generate a channel to discuss your problem with our support team.", color=0xb50000)
+        embedSetup = discord.Embed(title="Do you need help?", description="To get help from our staffs, click the button below.\n\nIt will automatically generate a channel to discuss your problem with our support team.")
         await ctx.send(embed=embedSetup, view=Setup())
         await ctx.message.delete()
             
