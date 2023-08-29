@@ -33,7 +33,7 @@ async def generate(self, interaction: discord.Interaction, type):
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Question\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
             await dashboard.send(embed=embedDashboard)
         if type == "report":
@@ -43,7 +43,7 @@ async def generate(self, interaction: discord.Interaction, type):
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Report\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
             await dashboard.send(embed=embedDashboard)
         if type == "appeal":
@@ -53,7 +53,7 @@ async def generate(self, interaction: discord.Interaction, type):
             
             embedDashboard = discord.Embed(description=f"Type of Ticket: Appeal\nTicket Channel: {channel.mention}", color=interaction.user.color, timestamp=datetime.now())
             embedDashboard.set_author(name=f"A ticket was generated for {interaction.user.name}#{interaction.user.discriminator}", icon_url=interaction.user.avatar)
-            embedAssistance.set_footer(text=f"Ticket ID: {self.ticket_name}")
+            embedDashboard.set_footer(text=f"Ticket ID: {self.ticket_name}")
             
             await dashboard.send(embed=embedDashboard) 
         
@@ -67,14 +67,14 @@ class Setup(discord.ui.View):
         self.ticket_dashboard_id = config['channels']['ticket_dashboard']
         self.cooldown = commands.CooldownMapping.from_cooldown(1, 600, commands.BucketType.member)
     
-    @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.blurple, custom_id="create:blurple")
+    @discord.ui.button(label="Create a Ticket", style=discord.ButtonStyle.red, custom_id="create:blurple")
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         interaction.message.author = interaction.user
         retry = self.cooldown.get_bucket(interaction.message).update_rate_limit()
         if retry:
             return await interaction.response.send_message(f"Slow down! You can create a ticket again in {round(retry, 1)} seconds.", ephemeral=True)
         
-        embedTypeSelector = discord.Embed(description="To assist you further, tell us why you are creating a ticket.")
+        embedTypeSelector = discord.Embed(description="To assist you further, tell us why you are creating a ticket.", color=0xb50000)
         await interaction.response.send_message(embed=embedTypeSelector, view=TicketTypeSelector(), ephemeral=True)
 
 class TicketTypeSelector(discord.ui.View):
@@ -165,6 +165,8 @@ class Settings(discord.ui.View):
     @discord.ui.button(label="Create Transcript", style=discord.ButtonStyle.blurple, custom_id='transcript:blurple', emoji="🖨️")
     async def transcript(self, interaction: discord.Interaction, button: discord.ui.Button):
         channel = interaction.channel
+        dashboard = discord.utils.get(interaction.guild.channels, id=self.ticket_dashboard_id)
+
         await interaction.response.defer()
         
         if os.path.exists(f'./extras/transcripts/{interaction.channel.id}.md'):
@@ -184,7 +186,7 @@ class Settings(discord.ui.View):
                 
         with open(f'./extras/transcripts/{interaction.channel.id}.md', 'rb') as f:
             await interaction.followup.send(file=discord.File(f, f"./extras/transcripts/{interaction.channel.id}.md"))
-
+            
         async def delete_transcript():
             await asyncio.sleep(120)
             os.remove(f"./extras/transcripts/{interaction.channel.id}.md")

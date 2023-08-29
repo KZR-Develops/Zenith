@@ -1,5 +1,16 @@
+import asyncio
+import time
 import discord
+import os
+import sys
+import json
+
 from discord.ext import commands
+
+
+# Fetch configuration datas
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
 class DeveloperTools(commands.Cog):
     def __init__(self, bot):
@@ -46,7 +57,14 @@ class DeveloperTools(commands.Cog):
         
         embedAction = discord.Embed(description=f"{extension_name} has been loaded with no errors.", color=0x00ff00)
         await ctx.send(embed=embedAction)
-        
+
+    @commands.command()
+    @commands.is_owner()
+    async def shutdown(self, ctx):
+        await self.bot.close()
+        print("Closed the connection between the bot and the gateway.")
+        os._exit(0)
+
 
 async def setup(bot):
     await bot.add_cog(DeveloperTools(bot))

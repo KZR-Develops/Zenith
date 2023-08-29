@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import logging
 import logging.handlers
@@ -74,6 +75,7 @@ class Main(commands.Bot):
         
         activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['prefix']}help | TDD")
         await self.change_presence(activity=activity)
+        await self.remove_command("help")
 
         
         print('─' * 60)
@@ -88,11 +90,14 @@ class Main(commands.Bot):
         
 bot = Main()
 
+pid = os.getpid()
+
+
 try:
     bot.run(dpyToken)
 except discord.errors.RateLimited(retry_after=60):
-    os.system('kill')
-    os.system('python restarter.py')
+    os._exit(0)
+    os.system('start.bat')
 except discord.errors.HTTPException:
-    os.system('kill')
-    os.system('python restarter.py')
+    os._exit(0)
+    os.system('start.bat')
